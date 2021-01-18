@@ -18,11 +18,12 @@ import os
 
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint
 import keras.models
 
 # loupe
 import loupe
+
+from tf_fastmri_data.datasets.noisy import ComplexNoisyFastMRIDatasetBuilder
 
 
 ###############################################################################
@@ -47,7 +48,6 @@ lr = 0.001                   # learning rate
 # paths
 filename_prefix = 'loupe_v2' # prefix for saving models, etc
 models_dir = '../../models/' # directory to save models to
-data_path = '/path/to/your/data/'  # directory of your data. See next section.
 
 
 ###############################################################################
@@ -56,6 +56,7 @@ data_path = '/path/to/your/data/'  # directory of your data. See next section.
 
 # our data for this demo is stored in npz files. 
 # Please change this to suit your needs
+dataset = ComplexNoisyFastMRIDatasetBuilder(path='/neurospin/optimed/Chaithya/Raw_Data/FastMRI/brain_val/', multicoil=True, n_samples=1)
 print('loading data...')
 files = [os.path.join(data_path, f) for f in os.listdir(data_path)]
 xdata = np.stack([np.load(f)['vol_data'] for f in files], 0)[..., np.newaxis]
@@ -68,11 +69,9 @@ print('done')
 ###############################################################################
 
 # gpu handling
-gpu = '/gpu:' + str(gpu_id)
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-config = tf.ConfigProto(allow_soft_placement=True)
-config.gpu_options.allow_growth = True
-set_session(tf.Session(config=config))
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(device=gpu, enable=True)
 
 
 ###############################################################################
