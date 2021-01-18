@@ -17,7 +17,6 @@ import os
 
 import numpy as np
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
 from keras.callbacks import ModelCheckpoint
 import keras.models
 
@@ -33,7 +32,7 @@ from loupe import models
 #   see e.g. https://github.com/voxelmorph/voxelmorph/blob/master/src/train.py
 gpu_id = 0  # gpu id
 models_dir = '../models/v2_test/' # change this to a location to save models
-nb_epochs_train = 60
+nb_epochs_train = 1
 batch_size = 32
 sparsity = 0.1
 
@@ -43,12 +42,9 @@ sparsity = 0.1
 ###############################################################################
 
 # gpu handling
-gpu = '/gpu:' + str(gpu_id)
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-config.allow_soft_placement = True
-set_session(tf.Session(config=config))
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(device=gpu, enable=True)
 
 
 ###############################################################################
@@ -85,13 +81,12 @@ filename = os.path.join(models_dir, 'model.{epoch:02d}.hdf5')
 ###############################################################################
 
 # training
-model.save_weights(filename.format(epoch=0))
+#model.save_weights(filename.format(epoch=0))
 history = model.fit(xdata, xdata,
                     validation_split=0.3,
                     initial_epoch=1,
                     epochs=1 + nb_epochs_train,
                     batch_size=batch_size, 
-                    callbacks=[ModelCheckpoint(filename)],
                     verbose=1)
 
 

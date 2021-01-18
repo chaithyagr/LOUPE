@@ -18,7 +18,6 @@ import os
 
 import numpy as np
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
 from keras.callbacks import ModelCheckpoint
 import keras.models
 

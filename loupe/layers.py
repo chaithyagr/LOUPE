@@ -112,7 +112,7 @@ class ProbMask(Layer):
         x = K.random_uniform(shape, dtype=dtype, minval=eps, maxval=1.0-eps) # [0, 1]
         
         # logit with slope factor
-        return - tf.log(1. / x - 1.) / self.slope
+        return - tf.math.log(1. / x - 1.) / self.slope
     
     
 class ThresholdRandomMask(Layer):
@@ -272,17 +272,17 @@ class FFT(Layer):
 
         # get the right fft
         if self.ndims == 1:
-            fft = tf.fft
+            fft = tf.signal.fft
         elif self.ndims == 2:
-            fft = tf.fft2d
+            fft = tf.signal.fft2d
         else:
-            fft = tf.fft3d
+            fft = tf.signal.fft3d
 
         # get fft complex image
         fft_im = fft(tf.complex(inputx[..., 0], inputx[..., 1]))
 
         # go back to two-feature representation
-        fft_im = tf.stack([tf.real(fft_im), tf.imag(fft_im)], axis=-1)
+        fft_im = tf.stack([tf.math.real(fft_im), tf.math.imag(fft_im)], axis=-1)
         return tf.cast(fft_im, tf.float32)
 
     def compute_output_shape(self, input_shape):
@@ -314,17 +314,17 @@ class IFFT(Layer):
 
         # get the right fft
         if self.ndims == 1:
-            ifft = tf.ifft
+            ifft = tf.signal.ifft
         elif self.ndims == 2:
-            ifft = tf.ifft2d
+            ifft = tf.signal.ifft2d
         else:
-            ifft = tf.ifft3d
+            ifft = tf.signal.ifft3d
 
         # get ifft complex image
         ifft_im = ifft(tf.complex(inputx[..., 0], inputx[..., 1]))
 
         # go back to two-feature representation
-        ifft_im = tf.stack([tf.real(ifft_im), tf.imag(ifft_im)], axis=-1)
+        ifft_im = tf.stack([tf.math.real(ifft_im), tf.math.imag(ifft_im)], axis=-1)
         return tf.cast(ifft_im, tf.float32)
 
     def compute_output_shape(self, input_shape):
